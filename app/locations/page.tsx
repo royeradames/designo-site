@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- decorative supplied SVG pattern */
 import type { Metadata } from "next";
 import { CtaBand } from "@/components/cta-band";
 import { ArtPicture } from "@/components/picture";
@@ -21,7 +20,7 @@ export default function LocationsPage() {
                 <ArtPicture className="office__map" sources={office.map} alt={office.map.alt} width={375} height={320} priority={index === 0} />
               </div>
               <div className="office__card">
-                <img className="office__pattern" src="/assets/shared/desktop/bg-pattern-three-circles.svg" width={584} height={584} alt="" />
+                <span className="office__pattern" aria-hidden="true" />
                 <h2 id={`${office.slug}-title`} className="title-l">{office.country}</h2>
                 <div className="office__details">
                   <address>

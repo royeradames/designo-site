@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element -- decorative supplied SVG patterns */
 import type { Metadata } from "next";
 import { CtaBand } from "@/components/cta-band";
 import { LocationLinks } from "@/components/location-links";
@@ -18,8 +17,8 @@ const aboutImage = (name: string) => ({
 export default function AboutPage() {
   return (
     <>
-      <img className="leaf leaf--left" style={{ top: 320 }} src="/assets/shared/desktop/bg-pattern-leaf.svg" width={1006} height={594} alt="" />
-      <img className="leaf leaf--right" style={{ top: 1340 }} src="/assets/shared/desktop/bg-pattern-leaf.svg" width={1006} height={594} alt="" />
+      <span className="leaf leaf--left" style={{ top: 320 }} aria-hidden="true" />
+      <span className="leaf leaf--right" style={{ top: 1340 }} aria-hidden="true" />
       <div className="sections about-page">
         <section className="wrap-tablet" aria-labelledby="about-title">
           <div className="page-hero page-hero--about on-peach">
@@ -27,7 +26,7 @@ export default function AboutPage() {
               <ArtPicture className="page-hero__image" sources={aboutImage("about-hero")} alt="Overhead view of a team working with laptops, tablets and notebooks around a wooden table" width={375} height={320} priority />
             </div>
             <div className="page-hero__copy">
-              <img className="page-hero__pattern page-hero__pattern--about" src="/assets/about/desktop/bg-pattern-hero-about-desktop.svg" width={640} height={640} alt="" />
+              <span className="page-hero__pattern page-hero__pattern--about" aria-hidden="true" />
               <h1 id="about-title" className="title-xl">About Us</h1>
               <p>Founded in 2010, we are a creative agency that produces lasting results for our clients. We’ve partnered with many startups, corporations, and nonprofits alike to craft designs that make real impact. We’re always looking forward to creating brands, products, and digital experiences that connect with our clients’ audiences.</p>
             </div>
@@ -36,7 +35,7 @@ export default function AboutPage() {
 
         <section className="wrap-tablet about-talent" aria-labelledby="talent-title">
           <div className="story">
-            <img className="story__pattern story__pattern--talent" src="/assets/shared/desktop/bg-pattern-three-circles.svg" width={584} height={584} alt="" />
+            <span className="story__pattern story__pattern--talent" aria-hidden="true" />
             <div className="story__media">
               <ArtPicture className="story__image" sources={aboutImage("world-class-talent")} alt="A woman pinning photos to a studio wall under hanging light bulbs" width={375} height={320} />
             </div>
@@ -54,7 +53,7 @@ export default function AboutPage() {
 
         <section className="wrap-tablet" aria-labelledby="deal-title">
           <div className="story story--reverse">
-            <img className="story__pattern story__pattern--deal" src="/assets/shared/desktop/bg-pattern-two-circles.svg" width={584} height={292} alt="" />
+            <span className="story__pattern story__pattern--deal" aria-hidden="true" />
             <div className="story__media">
               <ArtPicture className="story__image" sources={aboutImage("real-deal")} alt="Hands arranging printed photos on a white wall" width={375} height={320} />
             </div>
