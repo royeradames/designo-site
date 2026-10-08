@@ -102,7 +102,8 @@ test.describe("width sweep regressions", () => {
     });
   }
 
-  test("page sections never paint into each other (decorations stay inside their panels)", async ({ page }) => {
+  // A guard, not a fail-first check: panels already clipped their decorations. The footer check above carries the regression.
+  test("guard: page sections never paint into each other", async ({ page }) => {
     for (const width of [320, 768, 1030, 1440]) {
       await page.setViewportSize({ width, height: 900 });
       for (const path of routes) {
