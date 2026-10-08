@@ -73,6 +73,7 @@ test.describe("pages and metadata", () => {
     const response = await page.goto("/motion-design");
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Page not found");
+    await expect(page).toHaveTitle("Page not found | Designo");
   });
 });
 
@@ -130,7 +131,7 @@ test.describe("navigation", () => {
     test(`${from} location buttons open the matching office on /locations`, async ({ page }) => {
       for (const [country, slug] of [["Canada", "canada"], ["Australia", "australia"], ["United Kingdom", "united-kingdom"]]) {
         await page.goto(from);
-        const link = page.getByRole("link", { name: `See location in ${country}` });
+        const link = page.getByRole("link", { name: `${country} See location`, exact: true });
         await expect(link).toHaveAttribute("href", `/locations#${slug}`);
         await link.click();
         await expect(page).toHaveURL(`/locations#${slug}`);
@@ -290,6 +291,26 @@ test.describe("contact form", () => {
     expect(problems).toEqual([]);
   });
 
+  test("after a success, an empty resubmit shows the errors again and the status clears on typing", async ({ page }) => {
+    await page.goto("/contact");
+    await field(page, "Name").fill("Rose Caldwell");
+    await field(page, "Email address").fill("rose@example.com");
+    await field(page, "Your message").fill("Hello");
+    await page.getByRole("button", { name: "Submit" }).click();
+    await expect(page.getByRole("status")).toContainText("This is a demo");
+    await page.getByRole("button", { name: "Submit" }).click();
+    await expect(page.getByText("Can’t be empty")).toHaveCount(3);
+    await expect(field(page, "Name")).toBeFocused();
+    await expect(page.getByRole("status")).toHaveText("");
+    await field(page, "Name").fill("Rose");
+    await field(page, "Email address").fill("rose@example.com");
+    await field(page, "Your message").fill("Again");
+    await page.getByRole("button", { name: "Submit" }).click();
+    await expect(page.getByRole("status")).toContainText("This is a demo");
+    await field(page, "Name").fill("R");
+    await expect(page.getByRole("status")).toHaveText("");
+  });
+
   test("the no-script note stays hidden when scripts run", async ({ page }) => {
     await page.goto("/contact");
     await expect(page.getByText("This demo form checks your entries with JavaScript and never sends them anywhere.")).toBeHidden();
@@ -359,9 +380,10 @@ test.describe("keyboard and hover states", () => {
 });
 
 test.describe("responsive layout", () => {
-  for (const width of [375, 400, 768, 1024, 1440]) {
-    test(`no overflow or tiny text at ${width}px on any page`, async ({ page }) => {
+  for (const width of [375, 400, 480, 600, 768, 900, 1024, 1180, 1280, 1440]) {
+    test(`no overflow, cut-off or tiny text at ${width}px on any page`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
+      const failures: Record<string, unknown> = {};
       for (const entry of pages) {
         await page.goto(entry.path);
         const report = await page.evaluate(() => {
@@ -379,14 +401,31 @@ test.describe("responsive layout", () => {
             .map(node => node.outerHTML.slice(0, 80));
           const texts = [...document.body.querySelectorAll("h1, h2, h3, p, a, button, li, address, label, input, textarea, span, strong")]
             .filter(node => node.getClientRects().length && !node.closest(".sr-only") && [...node.childNodes].some(child => child.nodeType === 3 && child.textContent!.trim()));
+          // Text must stay inside its nearest clipping box (main, cards, heroes), or it is cut off.
+          const cut = texts.filter(node => !node.closest(".field__error")).flatMap(node => {
+            const box = node.getBoundingClientRect();
+            if (box.right > innerWidth + 1 || box.left < -1) return [`viewport: ${node.textContent!.trim().slice(0, 30)}`];
+            for (let parent = node.parentElement; parent && parent !== document.documentElement; parent = parent.parentElement) {
+              if (getComputedStyle(parent).overflowX === "visible") continue;
+              const frame = parent.getBoundingClientRect();
+              return box.right > frame.right + 1 || box.left < frame.left - 1 || box.bottom > frame.bottom + 1 ? [`clipped: ${node.textContent!.trim().slice(0, 30)}`] : [];
+            }
+            return [];
+          });
+          // On the home hero, the headline must not run into the phone (its body starts 172px into the image).
+          const phone = document.querySelector(".home-hero__phone");
+          const title = document.querySelector(".home-hero h1");
+          const overlap = phone && title && innerWidth >= 1024 && title.getBoundingClientRect().right > phone.getBoundingClientRect().left + 172 - 16;
           const tiny = texts.filter(node => parseFloat(getComputedStyle(node).fontSize) < 14).map(node => node.textContent!.trim().slice(0, 40));
           const smallBody = [...document.querySelectorAll("main p, footer p, footer address")]
             .filter(node => node.getClientRects().length && !node.closest(".sr-only, .field__error"))
             .filter(node => parseFloat(getComputedStyle(node).fontSize) < 16).map(node => node.textContent!.trim().slice(0, 40));
-          return { overflow, outside, tiny, smallBody };
+          return { overflow, outside, cut, overlap: Boolean(overlap), tiny, smallBody };
         });
-        expect(report, `${entry.path} at ${width}`).toEqual({ overflow: false, outside: [], tiny: [], smallBody: [] });
+        const problems = Object.fromEntries(Object.entries(report).filter(([, value]) => Array.isArray(value) ? value.length : value));
+        if (Object.keys(problems).length) failures[entry.path] = problems;
       }
+      expect(failures, `layout problems at ${width}px`).toEqual({});
     });
   }
 });
@@ -415,5 +454,13 @@ test.describe("without JavaScript", () => {
     await expect(page.getByText("This demo form checks your entries with JavaScript and never sends them anywhere.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Submit" })).toBeVisible();
     await expect(page.locator("form.contact-form")).toHaveAttribute("method", "post");
+    await page.getByLabel("Name", { exact: true }).fill("Rose Caldwell");
+    await page.getByLabel("Email address", { exact: true }).fill("rose@example.com");
+    const posted = page.waitForRequest(request => request.method() === "POST");
+    await page.getByRole("button", { name: "Submit" }).click();
+    expect((await posted).postData() ?? "").not.toContain("Rose");
+    await expect(page).toHaveURL("/contact");
+    expect(new URL(page.url()).search).toBe("");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Contact Us");
   });
 });

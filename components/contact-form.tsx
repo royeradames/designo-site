@@ -28,8 +28,10 @@ export function ContactForm() {
     defaultValues: emptyContact,
     onSubmit: ({ value, formApi }) => {
       const firstName = value.name.trim().split(/\s+/)[0];
-      setStatus(`Thanks, ${firstName}. This is a demo, so your message was not sent anywhere.`);
       formApi.reset();
+      // Clear first so a repeated, identical message is announced again.
+      setStatus("");
+      window.setTimeout(() => setStatus(`Thanks, ${firstName}. This is a demo, so your message was not sent anywhere.`), 50);
     },
     onSubmitInvalid: ({ formApi }) => {
       setStatus("");
@@ -66,7 +68,7 @@ export function ContactForm() {
               const errorId = `${config.name}-error`;
               const common = {
                 id: config.name,
-                name: config.name,
+                // No name attribute: without JavaScript a native submit would otherwise post the entries.
                 placeholder: config.placeholder,
                 autoComplete: config.autoComplete,
                 value: field.state.value,
@@ -79,9 +81,9 @@ export function ContactForm() {
                 <div className="field" data-invalid={Boolean(error)}>
                   <label className="sr-only" htmlFor={config.name}>{config.label}</label>
                   {config.multiline ? (
-                    <textarea {...common} ref={node => { controls.current[config.name] = node; }} onChange={event => field.handleChange(event.target.value)} />
+                    <textarea {...common} ref={node => { controls.current[config.name] = node; }} onChange={event => { setStatus(""); field.handleChange(event.target.value); }} />
                   ) : (
-                    <input {...common} type={config.type ?? "text"} ref={node => { controls.current[config.name] = node; }} onChange={event => field.handleChange(event.target.value)} />
+                    <input {...common} type={config.type ?? "text"} ref={node => { controls.current[config.name] = node; }} onChange={event => { setStatus(""); field.handleChange(event.target.value); }} />
                   )}
                   {error && (
                     <p className="field__error" id={errorId}>
