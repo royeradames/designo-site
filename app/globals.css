@@ -224,7 +224,8 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .home-hero__copy .btn { margin-top: 24px; }
 /* Decorative patterns are CSS backgrounds: they never count as page content or reach past their clipped panels. */
 .home-hero__pattern { position: absolute; z-index: -1; width: 640px; height: 639px; background: url(/assets/home/desktop/bg-pattern-hero-home.svg) 0 0 / 100% 100% no-repeat; left: 50%; top: 120px; transform: translateX(-30%); }
-/* The phone image box is the visible part of the hero only; object-position places the 624x913 artwork inside it. */
+/* The phone image box is the visible part of the hero only; object-position places the 624x913 artwork inside it.
+   object-fit: none draws the file at its own pixel size, so a replacement image must also be exactly 624x913. */
 .home-hero__phone {
   position: absolute; z-index: 0; inset: 302px 0 0; width: 100%; height: calc(100% - 302px); max-width: none;
   object-fit: none; object-position: 50% 0;

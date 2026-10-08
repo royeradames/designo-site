@@ -7,37 +7,43 @@ import { expect, test, type Page } from "@playwright/test";
 const routes = ["/", "/about", "/locations", "/contact", "/web-design", "/app-design", "/graphic-design"];
 const widths = [320, 375, 560, 768, 1030, 1280, 1440, 1920];
 
-/** Boxes that paint ink inside an element: text line boxes (clipped by overflow ancestors) and images or controls. */
+/** Boxes that paint ink inside an element: text line boxes and images or controls, each clipped by its overflow ancestors. */
 async function inkOverlap(page: Page, first: string, second: string) {
   return page.evaluate(([a, b]) => {
+    /** The visible part of a box: overflow ancestors (up to, not past, the root's parent) clip it, as they clip paint. */
+    const clipped = (box: DOMRect, from: Element | null, root: Element) => {
+      let clip = new DOMRect(-1e6, -1e6, 2e6, 2e6);
+      for (let el = from; el && el !== root.parentElement; el = el.parentElement) {
+        const style = getComputedStyle(el);
+        if (style.overflowX !== "visible" || style.overflowY !== "visible") {
+          const r = el.getBoundingClientRect();
+          const left = Math.max(clip.left, r.left);
+          const top = Math.max(clip.top, r.top);
+          clip = new DOMRect(left, top, Math.min(clip.right, r.right) - left, Math.min(clip.bottom, r.bottom) - top);
+        }
+      }
+      const left = Math.max(box.left, clip.left);
+      const top = Math.max(box.top, clip.top);
+      const width = Math.min(box.right, clip.right) - left;
+      const height = Math.min(box.bottom, clip.bottom) - top;
+      return width > 0.5 && height > 0.5 ? new DOMRect(left, top, width, height) : null;
+    };
     const ink = (root: Element) => {
       const boxes: DOMRect[] = [];
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       for (let node = walker.nextNode(); node; node = walker.nextNode()) {
         if (!node.nodeValue?.trim()) continue;
-        let clip = new DOMRect(-1e6, -1e6, 2e6, 2e6);
-        for (let el = node.parentElement; el && el !== root.parentElement; el = el.parentElement) {
-          const style = getComputedStyle(el);
-          if (style.overflowX !== "visible" || style.overflowY !== "visible") {
-            const r = el.getBoundingClientRect();
-            const left = Math.max(clip.left, r.left);
-            const top = Math.max(clip.top, r.top);
-            clip = new DOMRect(left, top, Math.min(clip.right, r.right) - left, Math.min(clip.bottom, r.bottom) - top);
-          }
-        }
         const range = document.createRange();
         range.selectNodeContents(node);
         for (const r of range.getClientRects()) {
-          const left = Math.max(r.left, clip.left);
-          const top = Math.max(r.top, clip.top);
-          const width = Math.min(r.right, clip.right) - left;
-          const height = Math.min(r.bottom, clip.bottom) - top;
-          if (width > 0.5 && height > 0.5) boxes.push(new DOMRect(left, top, width, height));
+          const box = clipped(r, node.parentElement, root);
+          if (box) boxes.push(box);
         }
       }
       for (const control of root.querySelectorAll("img, svg, input, textarea, button, video")) {
-        const r = control.getBoundingClientRect();
-        if (r.width > 1 && r.height > 1 && getComputedStyle(control).visibility !== "hidden") boxes.push(r);
+        if (getComputedStyle(control).visibility === "hidden") continue;
+        const box = clipped(control.getBoundingClientRect(), control.parentElement, root);
+        if (box && box.width > 1 && box.height > 1) boxes.push(box);
       }
       return boxes;
     };
@@ -68,6 +74,16 @@ test.describe("width sweep regressions", () => {
         expect(spills, `social links spill out of their list items at ${width}px`).toEqual([]);
 
         expect(await inkOverlap(page, "main", "footer"), `main overlaps the footer at ${width}px`).toBeNull();
+        // The footer used to be pulled up under the call-to-action card with a negative margin.
+        const footer = await page.evaluate(() => {
+          const footer = document.querySelector(".site-footer")!;
+          return {
+            marginTop: parseFloat(getComputedStyle(footer).marginTop),
+            gap: footer.getBoundingClientRect().top - document.querySelector("main")!.getBoundingClientRect().bottom,
+          };
+        });
+        expect(footer.marginTop, `footer margin-top at ${width}px`).toBeGreaterThanOrEqual(0);
+        expect(footer.gap, `footer starts above the end of main at ${width}px`).toBeGreaterThanOrEqual(-0.5);
 
         const small = await page.evaluate(() => {
           const found: string[] = [];
