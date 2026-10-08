@@ -433,7 +433,9 @@ test.describe("responsive layout", () => {
           // On the home hero, the headline must not run into the phone (its body starts 172px into the image).
           const phone = document.querySelector(".home-hero__phone");
           const title = document.querySelector(".home-hero h1");
-          const overlap = phone && title && innerWidth >= 1024 && title.getBoundingClientRect().right > phone.getBoundingClientRect().left + 172 - 16;
+          // The image box spans the hero; the 624px artwork overhangs its right edge by 74px.
+          const phoneLeft = phone ? phone.getBoundingClientRect().right + 74 - 624 : 0;
+          const overlap = phone && title && innerWidth >= 1024 && title.getBoundingClientRect().right > phoneLeft + 172 - 16;
           const tiny = texts.filter(node => parseFloat(getComputedStyle(node).fontSize) < 14).map(node => node.textContent!.trim().slice(0, 40));
           const smallBody = [...document.querySelectorAll("main p, footer p, footer address")]
             .filter(node => node.getClientRects().length && !node.closest(".sr-only, .field__error"))

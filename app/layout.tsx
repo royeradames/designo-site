@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Jost } from "next/font/google";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SITE_NAME, SITE_URL, websiteJsonLd } from "@/lib/site";
 import "./globals.css";
 
 const jost = Jost({
@@ -13,9 +14,11 @@ const jost = Jost({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Designo | Award-winning custom design agency", template: "%s | Designo" },
   description: "Designo is a creative agency for websites, apps and graphic design, with offices in Canada, Australia and the United Kingdom.",
-  applicationName: "Designo",
+  applicationName: SITE_NAME,
+  openGraph: { siteName: SITE_NAME, type: "website", locale: "en_US" },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },
@@ -38,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script dangerouslySetInnerHTML={{ __html: jsFlag }} />
       </head>
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c") }} />
         <a className="skip-link" href="#main">Skip to content</a>
         <SiteHeader />
         <main id="main" tabIndex={-1}>{children}</main>

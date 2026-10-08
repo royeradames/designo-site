@@ -1,8 +1,6 @@
 // Content from the Frontend Mentor starter pages. Pages render from this data so the
 // three design categories share one template.
 
-export const siteName = "Designo";
-
 export const navLinks = [
   { href: "/about", label: "Our company" },
   { href: "/locations", label: "Locations" },

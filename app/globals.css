@@ -88,7 +88,7 @@ main { position: relative; isolation: isolate; display: block; overflow: clip; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 152px; height: 56px; padding: 0 18px; border: 0; border-radius: 8px;
-  font-size: 0.9375rem; font-weight: 500; line-height: 1; letter-spacing: 1px;
+  font-size: 1rem; font-weight: 500; line-height: 1; letter-spacing: 1px;
   text-transform: uppercase; text-decoration: none; white-space: nowrap;
 }
 .btn-light { background: var(--white); color: var(--ink); }
@@ -133,35 +133,36 @@ main { position: relative; isolation: isolate; display: block; overflow: clip; }
   .site-nav ul, .site-nav[data-open="true"] ul { display: flex; gap: 42px; }
   .site-nav a, .site-nav[data-open="true"] a {
     display: inline-block; padding-block: 5px; margin-block: -5px;
-    font-size: 0.875rem; line-height: 0.875rem; letter-spacing: 2px; text-transform: uppercase;
+    font-size: 1rem; line-height: 1rem; letter-spacing: 2px; text-transform: uppercase;
   }
 }
 
 /* ---------- Footer and call to action ---------- */
+.cta-band { position: relative; }
+.cta-band::before {
+  content: ""; position: absolute; z-index: 0; bottom: 0; left: 50%; width: 100vw; height: var(--cta-overlap);
+  margin-left: -50vw; background: var(--night); pointer-events: none;
+}
+/* The decorative circles are a background, so nothing in main paints past the card. */
 .cta {
   position: relative; z-index: 1; overflow: hidden;
   display: grid; justify-items: center; gap: 32px; text-align: center;
-  padding: 64px 24px; border-radius: var(--radius); background: var(--peach); color: var(--white);
+  padding: 64px 24px; border-radius: var(--radius); color: var(--white);
+  background: url(/assets/shared/desktop/bg-pattern-call-to-action.svg) -240px -102px / 876px 584px no-repeat var(--peach);
 }
-.cta__pattern { position: absolute; z-index: -1; width: 876px; max-width: none; height: 584px; left: -240px; top: -102px; }
 .cta h2 { max-width: 260px; }
 @media (min-width: 48rem) { .cta h2 { max-width: 290px; } }
 .cta p { margin-top: 16px; max-width: 430px; }
 @media (min-width: 48rem) {
-  .cta { padding: 57px 58px; gap: 32px; }
-  .cta__pattern { left: -20px; top: -117px; }
+  .cta { padding: 57px 58px; gap: 32px; background-position: -20px -117px; }
   .cta h2 { font-size: 2.5rem; line-height: 2.5rem; }
 }
 @media (min-width: 64rem) {
-  .cta { grid-template-columns: 1fr auto; align-items: center; justify-items: start; text-align: left; padding: 72px 95px; }
-  .cta__pattern { left: 1111px; right: auto; top: -146px; transform: translateX(-100%); }
+  /* The pattern's right edge sits at 1111px, the card's full desktop width. */
+  .cta { grid-template-columns: 1fr auto; align-items: center; justify-items: start; text-align: left; padding: 72px 95px; background-position: 235px -146px; }
 }
 
 .site-footer { background: var(--night); color: var(--white); padding: var(--footer-pad-top) 0 var(--footer-pad-bottom); }
-main:has(> .sections > .cta-band:last-child) + .site-footer {
-  margin-top: calc(-1 * var(--cta-overlap));
-  padding-top: calc(var(--cta-overlap) + var(--footer-pad-top));
-}
 main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .site-footer__top { display: grid; justify-items: center; }
 .site-footer__top .logo img { width: 202px; }
@@ -169,7 +170,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .footer-nav ul { display: grid; justify-items: center; gap: 22px; }
 .footer-nav a {
   display: inline-block; padding-block: 5px; text-decoration: none; text-underline-offset: 6px;
-  font-size: 0.875rem; line-height: 0.875rem; letter-spacing: 2px; text-transform: uppercase;
+  font-size: 1rem; line-height: 1rem; letter-spacing: 2px; text-transform: uppercase;
 }
 .footer-nav a:hover, .footer-nav a:focus-visible { text-decoration: underline; }
 .site-footer__rule { height: 1px; margin: 32px 0 0; border: 0; background: rgb(255 255 255 / .1); grid-row: 2; }
@@ -180,8 +181,8 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .site-footer__bottom { display: grid; justify-items: center; gap: 40px; margin-top: 35px; text-align: center; }
 .site-footer address, .footer-contact { color: rgb(255 255 255 / .5); font-size: 1rem; line-height: 1.625rem; }
 .site-footer address strong, .footer-contact { font-weight: 700; }
-.socials { display: flex; gap: 16px; }
-.social-link { display: grid; place-items: center; width: 32px; height: 32px; margin: -4px; border-radius: 4px; }
+.socials { display: flex; flex-wrap: wrap; gap: 8px; }
+.social-link { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 4px; }
 .social-link span:first-child {
   display: block; width: 24px; height: 24px; background: var(--peach);
   mask: var(--icon) center / contain no-repeat; -webkit-mask: var(--icon) center / contain no-repeat;
@@ -205,7 +206,10 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 /* ---------- Decorative leaves (desktop only) ---------- */
 .leaf { display: none; }
 @media (min-width: 64rem) {
-  .leaf { display: block; position: absolute; z-index: -1; width: 1006px; max-width: none; height: 594px; pointer-events: none; }
+  .leaf {
+    display: block; position: absolute; z-index: -1; width: 1006px; height: 594px; pointer-events: none;
+    background: url(/assets/shared/desktop/bg-pattern-leaf.svg) center / 100% 100% no-repeat;
+  }
   .leaf--left { left: 0; }
   .leaf--right { right: 0; transform: rotate(180deg); }
 }
@@ -218,13 +222,19 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .home-hero__copy { position: relative; z-index: 1; display: grid; justify-items: center; }
 .home-hero__copy p { margin-top: 24px; }
 .home-hero__copy .btn { margin-top: 24px; }
-.home-hero__pattern { position: absolute; z-index: -1; width: 640px; height: 639px; max-width: none; left: 50%; top: 120px; transform: translateX(-30%); }
-.home-hero__phone { position: absolute; z-index: 0; width: 624px; height: 913px; max-width: none; left: 50%; top: 302px; transform: translateX(-50%); }
+/* Decorative patterns are CSS backgrounds: they never count as page content or reach past their clipped panels. */
+.home-hero__pattern { position: absolute; z-index: -1; width: 640px; height: 639px; background: url(/assets/home/desktop/bg-pattern-hero-home.svg) 0 0 / 100% 100% no-repeat; left: 50%; top: 120px; transform: translateX(-30%); }
+/* The phone image box is the visible part of the hero only; object-position places the 624x913 artwork inside it.
+   object-fit: none draws the file at its own pixel size, so a replacement image must also be exactly 624x913. */
+.home-hero__phone {
+  position: absolute; z-index: 0; inset: 302px 0 0; width: 100%; height: calc(100% - 302px); max-width: none;
+  object-fit: none; object-position: 50% 0;
+}
 @media (min-width: 48rem) {
   .home-hero { border-radius: var(--radius); padding: 60px 58px 0; }
   .home-hero__copy p { max-width: 445px; }
   .home-hero__pattern { left: 171px; top: 10px; transform: none; }
-  .home-hero__phone { top: 285px; }
+  .home-hero__phone { inset: 285px 0 0; height: calc(100% - 285px); }
 }
 @media (min-width: 64rem) {
   .home-hero { min-height: 640px; padding: 145px 95px 0; text-align: left; }
@@ -233,7 +243,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   .home-hero__copy p { margin-top: 32px; }
   .home-hero__copy .btn { margin-top: 40px; }
   .home-hero__pattern { left: auto; right: 0; top: 0; }
-  .home-hero__phone { left: auto; right: -74px; top: -31px; transform: none; }
+  .home-hero__phone { inset: 0; height: 100%; object-position: right -74px top -31px; }
 }
 
 /* ---------- Category cards ---------- */
@@ -247,8 +257,8 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .category-card:hover .category-card__shade, .category-card:focus-visible .category-card__shade { background: rgb(231 129 107 / .8); }
 .category-card h2 { font-size: 1.75rem; line-height: 2.25rem; font-weight: 500; letter-spacing: 1.4px; text-transform: uppercase; }
 .category-card__cta {
-  display: inline-flex; align-items: center; gap: 21px; margin-top: 12px;
-  font-size: 0.9375rem; line-height: 1.375rem; font-weight: 500; letter-spacing: 5px; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 21px; margin-top: 12px; white-space: nowrap;
+  font-size: 1rem; line-height: 1.375rem; font-weight: 500; letter-spacing: 5px; text-transform: uppercase;
 }
 .category-card__cta img { width: 7px; height: 10px; }
 @media (min-width: 48rem) {
@@ -290,7 +300,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   background: var(--peach); color: var(--white);
 }
 .page-hero__copy { position: relative; display: grid; gap: 24px; padding: 80px 24px; text-align: center; }
-.page-hero__pattern { position: absolute; z-index: -1; max-width: none; pointer-events: none; }
+.page-hero__pattern { position: absolute; z-index: -1; pointer-events: none; background: 0 0 / 100% 100% no-repeat; }
 .page-hero__image { width: 100%; height: 320px; object-fit: cover; }
 @media (min-width: 48rem) {
   .page-hero { border-radius: var(--radius); }
@@ -311,7 +321,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .story__copy { display: grid; gap: 24px; padding: 80px 24px; text-align: center; }
 .story__copy h2 { color: var(--peach); }
 .story__copy div { display: grid; gap: 26px; }
-.story__pattern { position: absolute; z-index: -1; max-width: none; pointer-events: none; }
+.story__pattern { position: absolute; z-index: -1; pointer-events: none; background: 0 0 / 100% 100% no-repeat; }
 @media (min-width: 48rem) {
   .story { border-radius: var(--radius); }
   .story__copy { padding: 68px 58px; }
@@ -341,22 +351,24 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 @media (min-width: 48rem) { .page-hero--contact .page-hero__copy { padding-top: 71px; } }
 .contact-form { position: relative; display: grid; padding: 48px 24px 72px; }
 .contact-form__fields { display: grid; gap: 25px; }
-.field { position: relative; }
+.field {
+  position: relative; display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: flex-end;
+  gap: 8px 16px; box-shadow: inset 0 -1px var(--white);
+}
+.field:hover, .field:focus-within { box-shadow: inset 0 -3px var(--white); }
 .field input, .field textarea {
-  display: block; width: 100%; padding: 6px 16px 6px; border: 0; border-radius: 0;
-  background: transparent; color: var(--white); box-shadow: inset 0 -1px var(--white);
+  display: block; flex: 1 1 12rem; min-width: 0; padding: 6px 16px 6px; border: 0; border-radius: 0;
+  background: transparent; color: var(--white);
   font: inherit; font-size: 1rem; line-height: 1.625rem; font-weight: 500; caret-color: var(--white);
 }
 .field textarea { height: 102px; resize: vertical; }
 .field input::placeholder, .field textarea::placeholder { color: rgb(255 255 255 / .6); opacity: 1; }
-.field input:hover, .field textarea:hover, .field input:focus, .field textarea:focus { box-shadow: inset 0 -3px var(--white); outline: none; }
-.field input:focus-visible, .field textarea:focus-visible { outline: none; }
-.field[data-invalid="true"] input, .field[data-invalid="true"] textarea { padding-right: 230px; }
+.field input:focus, .field textarea:focus, .field input:focus-visible, .field textarea:focus-visible { outline: none; }
 .field__error {
-  position: absolute; right: 8px; top: 6px; display: flex; align-items: center; gap: 9px;
-  font-size: 0.875rem; line-height: 1.625rem; font-style: italic; color: var(--white); pointer-events: none;
+  display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 0;
+  font-size: 1rem; line-height: 1.625rem; font-style: italic; color: var(--white);
 }
-.field__error img { width: 20px; height: 20px; }
+.field__error img { flex: none; width: 20px; height: 20px; }
 .contact-form__actions { display: grid; justify-items: center; margin-top: 40px; }
 .form-status { max-width: 380px; margin-top: 16px; text-align: center; }
 /* Stays in the accessibility tree while empty so the status announcement is reliable. */
@@ -365,10 +377,6 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 /* Visible before submitting so nobody types a real message expecting it to arrive. */
 .contact-form__submit-row { display: grid; justify-items: center; gap: 16px; }
 .form-demo-note { max-width: 260px; text-align: center; }
-@media (max-width: 29.99rem) {
-  .field[data-invalid="true"] input, .field[data-invalid="true"] textarea { padding-right: 16px; padding-bottom: 32px; }
-  .field__error { top: auto; bottom: 4px; }
-}
 @media (min-width: 48rem) {
   .contact-form { padding: 40px 58px 71px; }
   .contact-form__actions { justify-items: end; margin-top: 24px; }
@@ -392,7 +400,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .office__details { display: grid; gap: 24px; }
 .office__details p { font-size: 1rem; line-height: 1.625rem; }
 .office__details strong { font-weight: 700; }
-.office__pattern { position: absolute; z-index: -1; width: 584px; height: 584px; max-width: none; left: 0; top: 0; }
+.office__pattern { position: absolute; z-index: -1; width: 584px; height: 584px; left: 0; top: 0; background: url(/assets/shared/desktop/bg-pattern-three-circles.svg) 0 0 / 100% 100% no-repeat; }
 .office { scroll-margin-top: 24px; }
 @media (min-width: 48rem) {
   .offices { gap: 120px; }
@@ -418,14 +426,17 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   min-height: 320px; padding: 64px 24px; background: var(--peach); color: var(--white); text-align: center;
 }
 .category-hero p { max-width: 445px; margin-inline: auto; }
-.category-hero > picture { position: absolute; inset: 0; z-index: -1; }
-.category-hero__pattern { position: absolute; z-index: -1; width: 876px; height: 584px; max-width: none; right: 0; top: 0; }
+.category-hero__art { position: absolute; inset: 0; z-index: -1; }
+.category-hero__pattern {
+  position: absolute; z-index: -1; width: 876px; height: 584px; right: 0; top: 0;
+  background: url(/assets/shared/mobile/bg-pattern-design-pages-intro-mobile.svg) 0 0 / 100% 100% no-repeat;
+}
 @media (min-width: 48rem) {
   .category-hero { min-height: 252px; border-radius: var(--radius); padding: 64px 58px; }
-  .category-hero__pattern { right: -187px; top: -146px; }
+  .category-hero__pattern { right: -187px; top: -146px; background-image: url(/assets/shared/tablet/bg-pattern-design-pages-intro-tablet.svg); }
 }
 @media (min-width: 64rem) {
-  .category-hero__pattern { right: 0; top: -146px; }
+  .category-hero__pattern { right: 0; top: -146px; background-image: var(--intro-pattern); }
 }
 .category-page > .projects { margin-top: 96px; }
 @media (min-width: 48rem) { .category-page > .projects { margin-top: var(--section-gap); } }
@@ -451,14 +462,14 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   html:not(.js) .menu-toggle { display: none; }
   html:not(.js) .site-nav { display: block; width: 100%; padding-bottom: 16px; }
   html:not(.js) .site-nav ul { display: flex; flex-wrap: wrap; gap: 8px 24px; }
-  html:not(.js) .site-nav a { font-size: 0.875rem; letter-spacing: 2px; text-transform: uppercase; display: inline-block; padding-block: 8px; }
+  html:not(.js) .site-nav a { font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; display: inline-block; padding-block: 8px; }
 }
 
 /* Decorative circle positions, matched by eye to the comps (the Figma groups only give mask bounds). */
-.page-hero__pattern--about { width: 640px; height: 640px; left: -280px; top: 120px; }
-.page-hero__pattern--contact { width: 640px; height: 640px; left: -300px; top: 160px; }
-.story__pattern--talent { width: 584px; height: 584px; left: 94px; bottom: 44px; }
-.story__pattern--deal { width: 584px; height: 292px; left: 0; bottom: 0; }
+.page-hero__pattern--about { width: 640px; height: 640px; left: -280px; top: 120px; background-image: url(/assets/about/desktop/bg-pattern-hero-about-desktop.svg); }
+.page-hero__pattern--contact { width: 640px; height: 640px; left: -300px; top: 160px; background-image: url(/assets/contact/desktop/bg-pattern-hero-desktop.svg); }
+.story__pattern--talent { width: 584px; height: 584px; left: 94px; bottom: 44px; background-image: url(/assets/shared/desktop/bg-pattern-three-circles.svg); }
+.story__pattern--deal { width: 584px; height: 292px; left: 0; bottom: 0; background-image: url(/assets/shared/desktop/bg-pattern-two-circles.svg); }
 @media (min-width: 64rem) {
   .page-hero__pattern--about { left: 0; top: 160px; }
   .page-hero__pattern--contact { left: 0; top: 230px; }
