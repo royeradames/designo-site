@@ -362,6 +362,9 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 /* Stays in the accessibility tree while empty so the status announcement is reliable. */
 .form-status:empty { margin-top: 0; }
 .form-note { font-size: 1rem; }
+/* Visible before submitting so nobody types a real message expecting it to arrive. */
+.contact-form__submit-row { display: grid; justify-items: center; gap: 16px; }
+.form-demo-note { max-width: 260px; text-align: center; }
 @media (max-width: 29.99rem) {
   .field[data-invalid="true"] input, .field[data-invalid="true"] textarea { padding-right: 16px; padding-bottom: 32px; }
   .field__error { top: auto; bottom: 4px; }
@@ -369,6 +372,8 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 @media (min-width: 48rem) {
   .contact-form { padding: 40px 58px 71px; }
   .contact-form__actions { justify-items: end; margin-top: 24px; }
+  .contact-form__submit-row { display: flex; width: 100%; align-items: center; justify-content: space-between; }
+  .form-demo-note { order: -1; max-width: 210px; text-align: left; line-height: 1.5rem; }
   .form-status { text-align: right; }
 }
 @media (min-width: 64rem) {

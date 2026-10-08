@@ -311,9 +311,27 @@ test.describe("contact form", () => {
     await expect(page.getByRole("status")).toHaveText("");
   });
 
+  for (const width of [400, 768, 1440]) {
+    test(`the demo notice is readable beside the form before submitting at ${width}px`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/contact");
+      const note = page.locator("#contact-demo-note");
+      await expect(note).toContainText(/sen[dt]/);
+      await expect(note).toBeVisible();
+      const box = await note.boundingBox();
+      expect(box!.width, "notice is laid out as readable text, not screen-reader-only").toBeGreaterThan(150);
+      expect(box!.height).toBeGreaterThanOrEqual(20);
+      expect(parseFloat(await note.evaluate(node => getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(16);
+      const form = await page.locator("form.contact-form").boundingBox();
+      expect(box!.y).toBeGreaterThanOrEqual(form!.y);
+      expect(box!.y + box!.height).toBeLessThanOrEqual(form!.y + form!.height + 1);
+      await expect(page.locator("form.contact-form")).toHaveAttribute("aria-describedby", "contact-demo-note");
+    });
+  }
+
   test("the no-script note stays hidden when scripts run", async ({ page }) => {
     await page.goto("/contact");
-    await expect(page.getByText("This demo form checks your entries with JavaScript and never sends them anywhere.")).toBeHidden();
+    await expect(page.getByText("Checking your entries needs JavaScript.")).toBeHidden();
   });
 
   test("the whole form works from the keyboard", async ({ page }) => {
@@ -451,7 +469,8 @@ test.describe("without JavaScript", () => {
 
   test("the contact form explains it needs JavaScript and never puts entries in the URL", async ({ page }) => {
     await page.goto("/contact");
-    await expect(page.getByText("This demo form checks your entries with JavaScript and never sends them anywhere.")).toBeVisible();
+    await expect(page.getByText("Checking your entries needs JavaScript.")).toBeVisible();
+    await expect(page.getByText("Demo form: nothing you enter is sent anywhere.")).toBeVisible();
     await expect(page.getByRole("button", { name: "Submit" })).toBeVisible();
     await expect(page.locator("form.contact-form")).toHaveAttribute("method", "post");
     await page.getByLabel("Name", { exact: true }).fill("Rose Caldwell");

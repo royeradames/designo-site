@@ -52,7 +52,6 @@ export function ContactForm() {
         void form.handleSubmit();
       }}
     >
-      <p id="contact-demo-note" className="sr-only">Demo form: it checks your entries in the browser and does not send them anywhere.</p>
       <div className="contact-form__fields">
         {fields.map(config => (
           <form.Field
@@ -98,9 +97,12 @@ export function ContactForm() {
         ))}
       </div>
       <div className="contact-form__actions">
-        <button className="btn btn-light" type="submit">Submit</button>
+        <div className="contact-form__submit-row">
+          <button className="btn btn-light" type="submit">Submit</button>
+          <p id="contact-demo-note" className="form-demo-note">Demo form: nothing you enter is sent anywhere.</p>
+        </div>
         <p className="form-status" role="status">{status}</p>
-        <p className="form-note nojs-note">This demo form checks your entries with JavaScript and never sends them anywhere.</p>
+        <p className="form-note nojs-note">Checking your entries needs JavaScript.</p>
       </div>
     </form>
   );
