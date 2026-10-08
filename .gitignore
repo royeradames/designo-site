@@ -11,3 +11,4 @@ test-results/
 # Frontend Mentor asks that the premium Figma design file never be committed.
 *.fig
 *.zip
+next-env.d.ts
