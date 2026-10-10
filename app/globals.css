@@ -6,6 +6,8 @@
   --peach: #e7816b;
   --peach-light: #ffad9b;
   --peach-ink: #a74631;
+  /* Night mixed 82% toward peach: AA on the contact form, lighter than typed text. */
+  --placeholder-ink: #412e2c;
   --ink: #333136;
   --night: #1d1c1e;
   --mist: #f1f3f5;
@@ -363,7 +365,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   font: inherit; font-size: 1rem; line-height: 1.625rem; font-weight: 500; caret-color: var(--night);
 }
 .field textarea { height: 102px; resize: vertical; }
-.field input::placeholder, .field textarea::placeholder { color: color-mix(in srgb, var(--night) 82%, var(--peach)); opacity: 1; }
+.field input::placeholder, .field textarea::placeholder { color: var(--placeholder-ink); opacity: 1; }
 .field input:focus, .field textarea:focus, .field input:focus-visible, .field textarea:focus-visible { outline: none; }
 .field__error {
   display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 0;
