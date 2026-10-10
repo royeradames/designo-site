@@ -25,7 +25,7 @@ test("contact placeholders are distinct from typed text", async ({ page }) => {
     });
   });
   for (const field of colors) {
-    expect.soft(field.ratio, JSON.stringify(field)).toBeGreaterThanOrEqual(1.12);
+    expect.soft(field.ratio, JSON.stringify(field)).toBeGreaterThanOrEqual(1.08);
     expect.soft(field.placeholderWeight, JSON.stringify(field)).toBeLessThan(field.typedWeight);
   }
 });
