@@ -370,7 +370,7 @@ test.describe("keyboard and hover states", () => {
     await page.keyboard.press("Tab");
     const webCard = page.getByRole("link", { name: "Web Design View projects" });
     await expect(webCard).toBeFocused();
-    await expect(webCard.locator(".category-card__shade")).toHaveCSS("background-color", "rgba(231, 129, 107, 0.8)");
+    await expect(webCard.locator(".category-card__shade")).toHaveCSS("background-color", "rgb(167, 70, 49)");
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL("/web-design");
   });
@@ -378,13 +378,13 @@ test.describe("keyboard and hover states", () => {
   test("hover states follow the design", async ({ page }) => {
     await page.goto("/web-design");
     const card = page.getByRole("link", { name: "App Design View projects" });
-    await expect(card.locator(".category-card__shade")).toHaveCSS("background-color", "rgba(0, 0, 0, 0.5)");
+    await expect(card.locator(".category-card__shade")).toHaveCSS("background-color", "rgba(0, 0, 0, 0.6)");
     await card.hover();
-    await expect(card.locator(".category-card__shade")).toHaveCSS("background-color", "rgba(231, 129, 107, 0.8)");
+    await expect(card.locator(".category-card__shade")).toHaveCSS("background-color", "rgb(167, 70, 49)");
     const project = page.locator(".project-card").first();
     await project.hover();
     await expect(project).toHaveCSS("background-color", "rgb(231, 129, 107)");
-    await expect(project.locator("h2")).toHaveCSS("color", "rgb(255, 255, 255)");
+    await expect(project.locator("h2")).toHaveCSS("color", "rgb(29, 28, 30)");
     const button = page.getByRole("link", { name: "Get in touch" });
     await button.hover();
     await expect(button).toHaveCSS("background-color", "rgb(255, 173, 155)");
