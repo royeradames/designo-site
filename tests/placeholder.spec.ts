@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-// An empty field must not read as a filled one: placeholder ink stays visibly
-// lighter than typed text, while tests/contrast.spec.ts keeps both at AA.
+// An empty field must not read as a filled one: placeholder ink stays lighter
+// and thinner than typed text, while tests/contrast.spec.ts keeps both at AA.
 test("contact placeholders are distinct from typed text", async ({ page }) => {
   await page.goto("/contact");
   const fields = page.locator(".field input, .field textarea");
@@ -17,11 +17,15 @@ test("contact placeholders are distinct from typed text", async ({ page }) => {
       return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2];
     };
     return controls.map(control => {
-      const typed = getComputedStyle(control).color;
-      const placeholder = getComputedStyle(control, "::placeholder").color;
-      const ratio = (luminance(placeholder) + 0.05) / (luminance(typed) + 0.05);
-      return { name: control.getAttribute("name"), typed, placeholder, ratio };
+      const typed = getComputedStyle(control);
+      const placeholder = getComputedStyle(control, "::placeholder");
+      const ratio = (luminance(placeholder.color) + 0.05) / (luminance(typed.color) + 0.05);
+      return { name: control.getAttribute("name"), typed: typed.color, placeholder: placeholder.color, ratio,
+        typedWeight: Number(typed.fontWeight), placeholderWeight: Number(placeholder.fontWeight) };
     });
   });
-  for (const field of colors) expect.soft(field.ratio, JSON.stringify(field)).toBeGreaterThanOrEqual(1.25);
+  for (const field of colors) {
+    expect.soft(field.ratio, JSON.stringify(field)).toBeGreaterThanOrEqual(1.12);
+    expect.soft(field.placeholderWeight, JSON.stringify(field)).toBeLessThan(field.typedWeight);
+  }
 });
