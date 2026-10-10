@@ -363,7 +363,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   font: inherit; font-size: 1rem; line-height: 1.625rem; font-weight: 500; caret-color: var(--night);
 }
 .field textarea { height: 102px; resize: vertical; }
-.field input::placeholder, .field textarea::placeholder { color: var(--night); opacity: 1; }
+.field input::placeholder, .field textarea::placeholder { color: color-mix(in srgb, var(--night) 82%, var(--peach)); opacity: 1; }
 .field input:focus, .field textarea:focus, .field input:focus-visible, .field textarea:focus-visible { outline: none; }
 .field__error {
   display: flex; align-items: center; gap: 9px; padding: 6px 8px 6px 0;
