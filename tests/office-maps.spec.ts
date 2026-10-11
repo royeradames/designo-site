@@ -53,6 +53,8 @@ for (const width of [320, 375, 768, 1024, 1440]) {
         }
         // Both controls are comfortable tap targets now that they have room below the map.
         for (const control of [load, link]) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        // On white the link needs its underline to read as a link, not as a caption.
+        await expect(link).toHaveCSS("text-decoration-line", "underline");
       }
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".leaflet-container")).toHaveCount(0);
