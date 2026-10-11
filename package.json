@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@tanstack/react-form": "1.33.5",
+    "leaflet": "1.9.4",
     "next": "16.3.6",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -23,6 +24,7 @@
   "devDependencies": {
     "@playwright/test": "1.58.2",
     "@tailwindcss/postcss": "4.2.1",
+    "@types/leaflet": "1.9.21",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",

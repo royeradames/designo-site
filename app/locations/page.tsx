@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { CtaBand } from "@/components/cta-band";
-import { ArtPicture } from "@/components/picture";
+import { OfficeMap } from "@/components/office-map";
 import { offices } from "@/lib/site-data";
 
 export const metadata: Metadata = {
   title: "Our locations",
-  description: "Visit Designo in Toronto, New South Wales or South Wales. Office addresses, phone numbers and email for our Canada, Australia and UK teams.",
+  description: "Visit Designo in Toronto, New South Wales or South Wales. Office addresses, phone numbers, email and an opt-in OpenStreetMap map for our Canada, Australia and UK teams.",
 };
 
 export default function LocationsPage() {
@@ -16,9 +16,7 @@ export default function LocationsPage() {
         <div className="offices">
           {offices.map((office, index) => (
             <article key={office.slug} id={office.slug} className={`office${index % 2 === 1 ? " office--reverse" : ""}`} aria-labelledby={`${office.slug}-title`}>
-              <div className="office__media">
-                <ArtPicture className="office__map" sources={office.map} alt={office.map.alt} width={375} height={320} priority={index === 0} />
-              </div>
+              <OfficeMap office={office} priority={index === 0} />
               <div className="office__card">
                 <span className="office__pattern" aria-hidden="true" />
                 <h2 id={`${office.slug}-title`} className="title-l">{office.country}</h2>
