@@ -24,7 +24,7 @@ async function watchRequests(page: Page) {
   return { external, problems };
 }
 
-for (const width of [320, 375, 768, 1440]) {
+for (const width of [320, 375, 768, 1024, 1440]) {
   test.describe(`office maps at ${width}px`, () => {
     test.use({ viewport: { width, height: 900 } });
 
@@ -39,6 +39,22 @@ for (const width of [320, 375, 768, 1440]) {
         const load = article.getByRole("button", { name: `Load interactive map of the ${office.country} office` });
         await expect(load).toBeVisible();
         await expect(load).toHaveAccessibleDescription("The interactive map sends your IP address to OpenStreetMap.");
+
+        // The controls sit below the map, never over it, so the whole map stays in view.
+        const map = await article.locator("img.office__map").boundingBox();
+        const note = article.getByText("The interactive map sends your IP address to OpenStreetMap.");
+        expect(map).not.toBeNull();
+        for (const control of [load, link, note]) {
+          const box = await control.boundingBox();
+          expect(box).not.toBeNull();
+          expect(box!.y, "control starts below the map").toBeGreaterThanOrEqual(map!.y + map!.height);
+          expect(box!.x, "control starts inside the map column").toBeGreaterThanOrEqual(map!.x);
+          expect(box!.x + box!.width, "control ends inside the map column").toBeLessThanOrEqual(map!.x + map!.width);
+        }
+        // Both controls are comfortable tap targets now that they have room below the map.
+        for (const control of [load, link]) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        // On white the link needs its underline to read as a link, not as a caption.
+        await expect(link).toHaveCSS("text-decoration-line", "underline");
       }
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".leaflet-container")).toHaveCount(0);
