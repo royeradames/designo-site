@@ -103,6 +103,11 @@ export type Office = {
   phone: string;
   email: string;
   map: { mobile: string; tablet: string; desktop: string; alt: string };
+  /**
+   * Where the interactive map is centred and pinned. The brief's street
+   * addresses are sample copy, so the pin marks the postcode area.
+   */
+  position: { lat: number; lng: number; area: string };
 };
 
 export const offices: Office[] = [
@@ -121,6 +126,7 @@ export const offices: Office[] = [
       desktop: "/assets/locations/desktop/image-map-canada.png",
       alt: "Street map of Scarborough on the Lake Ontario shore in Toronto",
     },
+    position: { lat: 43.6435, lng: -79.5772, area: "Toronto M9C" },
   },
   {
     slug: "australia",
@@ -137,6 +143,7 @@ export const offices: Office[] = [
       desktop: "/assets/locations/desktop/image-map-australia.png",
       alt: "Map of the New South Wales coast around Morisset and Caves Beach",
     },
+    position: { lat: -31.7327, lng: 152.6968, area: "New South Wales 2443" },
   },
   {
     slug: "united-kingdom",
@@ -153,6 +160,7 @@ export const offices: Office[] = [
       desktop: "/assets/locations/desktop/image-map-united-kingdom.png",
       alt: "Street map of the river and lakes around Ferry Fryston",
     },
+    position: { lat: 51.7371, lng: -3.8668, area: "Rhyd-y-fro SA8" },
   },
 ];
 

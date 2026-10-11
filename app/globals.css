@@ -405,6 +405,26 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 .office__details strong { font-weight: 700; }
 .office__pattern { position: absolute; z-index: -1; width: 584px; height: 584px; left: 0; top: 0; background: url(/assets/shared/desktop/bg-pattern-three-circles.svg) 0 0 / 100% 100% no-repeat; }
 .office { scroll-margin-top: 24px; }
+/* Opt-in map controls sit on the static map, so the layout matches the design until a visitor loads the live map. */
+.office__media { position: relative; isolation: isolate; min-width: 0; }
+.office__map--live { z-index: 0; background: var(--mist); }
+.office__map-actions {
+  position: absolute; inset: auto 12px 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+  padding: 12px 16px; border-radius: 8px; background: rgb(29 28 30 / .9); color: var(--white);
+}
+.office__map-actions :focus-visible { outline-color: var(--white); }
+.office__map-load {
+  min-height: 44px; padding: 0 16px; border: 0; border-radius: 8px; background: var(--peach); color: var(--night);
+  font-size: 1rem; font-weight: 500;
+}
+.office__map-load:hover, .office__map-load:focus-visible { background: var(--peach-light); }
+.office__map-link { display: inline-flex; align-items: center; min-height: 44px; font-size: 1rem; text-underline-offset: 3px; }
+.office__map-link:hover { color: var(--peach-light); }
+.office__map-note { flex-basis: 100%; font-size: 1rem; line-height: 1.5; }
+.office__map-status {
+  position: absolute; inset: auto 12px 12px; z-index: 1; width: fit-content; padding: 8px 16px; border-radius: 8px;
+  background: rgb(29 28 30 / .9); color: var(--white);
+}
 @media (min-width: 48rem) {
   .offices { gap: 120px; }
   .office { gap: 31px; }
