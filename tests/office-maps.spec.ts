@@ -63,6 +63,8 @@ for (const width of [320, 375, 768, 1440]) {
       await expect(map.locator(".leaflet-control-zoom-in")).toBeVisible();
       await expect(map.locator(".leaflet-tooltip")).toHaveText("New South Wales 2443 (postcode area)");
       await expect(map.locator(".leaflet-tooltip")).toHaveCSS("font-size", "16px");
+      const label = await map.locator(".leaflet-tooltip").boundingBox();
+      expect(label && box && label.x >= box.x && label.x + label.width <= box.x + box.width).toBe(true);
 
       // The other offices stay static, and nothing but tiles left the site.
       await expect(page.locator(".leaflet-container")).toHaveCount(1);

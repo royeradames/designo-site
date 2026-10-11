@@ -86,7 +86,8 @@ export function OfficeMap({ office, priority }: { office: Office; priority: bool
       )}
       {status === "loading" ? <p className="office__map-status" role="status">Loading map…</p> : null}
       {status === "ready" && tilesFailed ? (
-        <p className="office__map-status" role="alert">Some map tiles didn’t load. {osmLink}</p>
+        // Below the map, so the OpenStreetMap attribution stays visible.
+        <p className="office__map-error" role="alert">Some map tiles didn’t load. {osmLink}</p>
       ) : null}
       {requested ? null : (
         <div className="office__map-actions">
