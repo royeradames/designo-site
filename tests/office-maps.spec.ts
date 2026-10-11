@@ -1,0 +1,74 @@
+import { expect, test, type Page } from "@playwright/test";
+
+// A 1×1 transparent PNG, so the opt-in test never reaches OpenStreetMap.
+const tile = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
+
+const offices = [
+  { slug: "canada", country: "Canada", lat: 43.6435, lng: -79.5772 },
+  { slug: "australia", country: "Australia", lat: -31.7327, lng: 152.6968 },
+  { slug: "united-kingdom", country: "United Kingdom", lat: 51.7371, lng: -3.8668 },
+] as const;
+
+/** Records every request that leaves the local server, and answers tile requests locally. */
+async function watchRequests(page: Page) {
+  const localHost = `127.0.0.1:${process.env.PORT ?? "4412"}`;
+  const external: string[] = [];
+  const problems: string[] = [];
+  page.on("pageerror", error => problems.push(`pageerror: ${error.message}`));
+  page.on("console", message => { if (message.type() === "error") problems.push(`console: ${message.text()}`); });
+  page.on("request", request => {
+    const url = new URL(request.url());
+    if (![localHost, ""].includes(url.host) && url.protocol !== "data:") external.push(request.url());
+  });
+  await page.route("https://tile.openstreetmap.org/**", route => route.fulfill({ contentType: "image/png", body: tile }));
+  return { external, problems };
+}
+
+for (const width of [375, 768, 1440]) {
+  test.describe(`office maps at ${width}px`, () => {
+    test.use({ viewport: { width, height: 900 } });
+
+    test("stay static images with an OpenStreetMap link until a visitor opts in", async ({ page }) => {
+      const { external, problems } = await watchRequests(page);
+      await page.goto("/locations");
+      for (const office of offices) {
+        const article = page.locator(`#${office.slug}`);
+        await expect(article.locator("img.office__map")).toBeVisible();
+        const link = article.getByRole("link", { name: `${office.country} on OpenStreetMap`, exact: true });
+        await expect(link).toHaveAttribute("href", `https://www.openstreetmap.org/?mlat=${office.lat}&mlon=${office.lng}#map=14/${office.lat}/${office.lng}`);
+        const load = article.getByRole("button", { name: `Load interactive map of the ${office.country} office` });
+        await expect(load).toBeVisible();
+        await expect(load).toHaveAccessibleDescription("Loading it sends your IP address to OpenStreetMap.");
+      }
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator(".leaflet-container")).toHaveCount(0);
+      expect(external).toEqual([]);
+      expect(problems).toEqual([]);
+    });
+
+    test("loads only the chosen office's interactive map, with its pin and attribution", async ({ page }) => {
+      const { external, problems } = await watchRequests(page);
+      await page.goto("/locations");
+      const article = page.locator("#australia");
+      await article.getByRole("button", { name: "Load interactive map of the Australia office" }).click();
+
+      const map = article.getByRole("region", { name: "Interactive map of the Australia office" });
+      await expect(map).toHaveClass(/leaflet-container/);
+      await expect(map).toBeFocused();
+      await expect(map).toHaveAttribute("aria-busy", "false");
+      const box = await map.boundingBox();
+      expect(box?.height).toBeGreaterThanOrEqual(320);
+      await expect(map.locator("path.leaflet-interactive")).toHaveCount(1);
+      await expect(map.locator(".leaflet-control-attribution")).toContainText("OpenStreetMap");
+      await expect(map.locator(".leaflet-control-zoom-in")).toBeVisible();
+
+      // The other offices stay static, and nothing but tiles left the site.
+      await expect(page.locator(".leaflet-container")).toHaveCount(1);
+      await expect(page.locator("#canada img.office__map")).toBeVisible();
+      await page.waitForLoadState("networkidle");
+      expect(external.length).toBeGreaterThan(0);
+      expect(external.filter(url => !url.startsWith("https://tile.openstreetmap.org/"))).toEqual([]);
+      expect(problems).toEqual([]);
+    });
+  });
+}
