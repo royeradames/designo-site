@@ -419,7 +419,7 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
   font-size: 1rem; font-weight: 500;
 }
 .office__map-load:hover, .office__map-load:focus-visible { background: var(--peach-light); }
-.office__map-link { display: inline-block; padding-block: 4px; font-size: 1rem; line-height: 1.5; text-underline-offset: 3px; }
+.office__map-link { display: inline-block; padding-block: 4px; font-size: 1rem; line-height: 1.5; text-decoration: underline; text-underline-offset: 3px; }
 .office__map-link:hover { color: var(--peach-ink); }
 /* A full 44px tap target beside the button; inside the tile-error sentence it stays inline. */
 .office__map-actions .office__map-link { display: inline-flex; align-items: center; min-height: 44px; padding-block: 0; }
