@@ -43,11 +43,16 @@ for (const width of [320, 375, 768, 1024, 1440]) {
         // The controls sit below the map, never over it, so the whole map stays in view.
         const map = await article.locator("img.office__map").boundingBox();
         const note = article.getByText("The interactive map sends your IP address to OpenStreetMap.");
+        expect(map).not.toBeNull();
         for (const control of [load, link, note]) {
           const box = await control.boundingBox();
-          expect(box && map && box.y >= map.y + map.height).toBe(true);
-          expect(box && map && box.x >= map.x && box.x + box.width <= map.x + map.width).toBe(true);
+          expect(box).not.toBeNull();
+          expect(box!.y, "control starts below the map").toBeGreaterThanOrEqual(map!.y + map!.height);
+          expect(box!.x, "control starts inside the map column").toBeGreaterThanOrEqual(map!.x);
+          expect(box!.x + box!.width, "control ends inside the map column").toBeLessThanOrEqual(map!.x + map!.width);
         }
+        // Both controls are comfortable tap targets now that they have room below the map.
+        for (const control of [load, link]) expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
       }
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".leaflet-container")).toHaveCount(0);
