@@ -24,11 +24,14 @@ export function OfficeMap({ office, priority }: { office: Office; priority: bool
   const hydrated = useHydrated();
   const [requested, setRequested] = useState(false);
   const [status, setStatus] = useState<Status>("static");
+  const [tilesFailed, setTilesFailed] = useState(false);
   const mapNode = useRef<HTMLDivElement>(null);
   const loadButton = useRef<HTMLButtonElement>(null);
   const noteId = useId();
   const { lat, lng, area } = office.position;
-  const label = `${office.office}, ${area}`;
+  const pinLabel = `${area} (postcode area)`;
+  const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoom}/${lat}/${lng}`;
+  const osmLink = <a className="office__map-link" href={osmUrl}>{office.country} on OpenStreetMap</a>;
 
   useEffect(() => {
     if (!requested) return;
@@ -38,13 +41,17 @@ export function OfficeMap({ office, priority }: { office: Office; priority: bool
       try {
         const { default: L } = await import("leaflet");
         if (cancelled || !mapNode.current) return;
-        map = L.map(mapNode.current, { scrollWheelZoom: false, dragging: !L.Browser.mobile }).setView([lat, lng], zoom);
+        // Touch screens (iPadOS reports a desktop browser) keep one-finger page scrolling.
+        const coarse = window.matchMedia("(pointer: coarse)").matches;
+        map = L.map(mapNode.current, { scrollWheelZoom: false, dragging: !coarse }).setView([lat, lng], zoom);
         L.tileLayer(tileUrl, {
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(map);
+        })
+          .once("tileerror", () => setTilesFailed(true))
+          .addTo(map);
         L.circleMarker([lat, lng], { radius: 10, color: "#a74631", weight: 3, fillColor: "#e7816b", fillOpacity: 0.9 })
-          .bindTooltip(label)
+          .bindTooltip(pinLabel, { permanent: true, direction: "top", offset: [0, -10] })
           .addTo(map);
         setStatus("ready");
         mapNode.current.focus();
@@ -58,7 +65,7 @@ export function OfficeMap({ office, priority }: { office: Office; priority: bool
       cancelled = true;
       map?.remove();
     };
-  }, [requested, lat, lng, label]);
+  }, [requested, lat, lng, pinLabel]);
 
   useEffect(() => {
     if (status === "failed") loadButton.current?.focus();
@@ -78,6 +85,9 @@ export function OfficeMap({ office, priority }: { office: Office; priority: bool
         <ArtPicture className="office__map" sources={office.map} alt={office.map.alt} width={375} height={320} priority={priority} />
       )}
       {status === "loading" ? <p className="office__map-status" role="status">Loading map…</p> : null}
+      {status === "ready" && tilesFailed ? (
+        <p className="office__map-status" role="alert">Some map tiles didn’t load. {osmLink}</p>
+      ) : null}
       {requested ? null : (
         <div className="office__map-actions">
           {hydrated ? (
@@ -85,14 +95,14 @@ export function OfficeMap({ office, priority }: { office: Office; priority: bool
               Load interactive map<span className="sr-only"> of the {office.country} office</span>
             </button>
           ) : null}
-          <a className="office__map-link" href={`https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoom}/${lat}/${lng}`}>
-            {office.country} on OpenStreetMap
-          </a>
-          <p id={noteId} className="office__map-note" role={status === "failed" ? "alert" : undefined}>
-            {status === "failed"
-              ? "The map didn’t load. Try again, or use the OpenStreetMap link."
-              : "Loading it sends your IP address to OpenStreetMap."}
-          </p>
+          {osmLink}
+          {hydrated ? (
+            <p id={noteId} className="office__map-note" role={status === "failed" ? "alert" : undefined}>
+              {status === "failed"
+                ? "The map didn’t load. Try again, or use the OpenStreetMap link."
+                : "The interactive map sends your IP address to OpenStreetMap."}
+            </p>
+          ) : null}
         </div>
       )}
     </div>

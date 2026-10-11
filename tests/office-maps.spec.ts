@@ -24,7 +24,7 @@ async function watchRequests(page: Page) {
   return { external, problems };
 }
 
-for (const width of [375, 768, 1440]) {
+for (const width of [320, 375, 768, 1440]) {
   test.describe(`office maps at ${width}px`, () => {
     test.use({ viewport: { width, height: 900 } });
 
@@ -38,7 +38,7 @@ for (const width of [375, 768, 1440]) {
         await expect(link).toHaveAttribute("href", `https://www.openstreetmap.org/?mlat=${office.lat}&mlon=${office.lng}#map=14/${office.lat}/${office.lng}`);
         const load = article.getByRole("button", { name: `Load interactive map of the ${office.country} office` });
         await expect(load).toBeVisible();
-        await expect(load).toHaveAccessibleDescription("Loading it sends your IP address to OpenStreetMap.");
+        await expect(load).toHaveAccessibleDescription("The interactive map sends your IP address to OpenStreetMap.");
       }
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".leaflet-container")).toHaveCount(0);
@@ -61,6 +61,8 @@ for (const width of [375, 768, 1440]) {
       await expect(map.locator("path.leaflet-interactive")).toHaveCount(1);
       await expect(map.locator(".leaflet-control-attribution")).toContainText("OpenStreetMap");
       await expect(map.locator(".leaflet-control-zoom-in")).toBeVisible();
+      await expect(map.locator(".leaflet-tooltip")).toHaveText("New South Wales 2443 (postcode area)");
+      await expect(map.locator(".leaflet-tooltip")).toHaveCSS("font-size", "16px");
 
       // The other offices stay static, and nothing but tiles left the site.
       await expect(page.locator(".leaflet-container")).toHaveCount(1);
@@ -72,3 +74,18 @@ for (const width of [375, 768, 1440]) {
     });
   });
 }
+
+test("a map that fails to load says so and gives focus back to its button", async ({ page }) => {
+  await watchRequests(page);
+  await page.goto("/locations");
+  const article = page.locator("#canada");
+  const load = article.getByRole("button", { name: "Load interactive map of the Canada office" });
+  await expect(load).toBeVisible();
+  // Leaflet is a lazily loaded chunk; refusing chunks now makes the import fail.
+  await page.route("**/_next/static/chunks/**", route => route.abort());
+  await load.click();
+  await expect(article.getByRole("alert")).toHaveText("The map didn’t load. Try again, or use the OpenStreetMap link.");
+  await expect(load).toBeFocused();
+  await expect(article.locator("img.office__map")).toBeVisible();
+  await expect(page.locator(".leaflet-container")).toHaveCount(0);
+});
