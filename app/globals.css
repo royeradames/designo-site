@@ -411,7 +411,8 @@ main:not(:has(.cta-band)) { padding-bottom: var(--section-gap); }
 /* Leaflet sets 12px; keep the attribution and pin label at the site's 16px floor. */
 .office__map--live.leaflet-container { font: inherit; font-size: 1rem; line-height: 1.5; }
 .office__map--live .leaflet-tooltip { max-width: 240px; font-size: 1rem; color: var(--night); white-space: normal; width: max-content; }
-.office__map-error { margin-top: 8px; font-size: 1rem; }
+.office__map-error { margin-top: 8px; padding-inline: var(--gutter); font-size: 1rem; }
+@media (min-width: 48rem) { .office__map-error { padding-inline: 0; } }
 .office__map-error .office__map-link:hover { color: var(--peach-ink); }
 .office__map-actions {
   position: absolute; inset: auto 8px 8px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
