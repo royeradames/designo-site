@@ -24,7 +24,7 @@ async function watchRequests(page: Page) {
   return { external, problems };
 }
 
-for (const width of [320, 375, 768, 1440]) {
+for (const width of [320, 375, 768, 1024, 1440]) {
   test.describe(`office maps at ${width}px`, () => {
     test.use({ viewport: { width, height: 900 } });
 
@@ -39,6 +39,15 @@ for (const width of [320, 375, 768, 1440]) {
         const load = article.getByRole("button", { name: `Load interactive map of the ${office.country} office` });
         await expect(load).toBeVisible();
         await expect(load).toHaveAccessibleDescription("The interactive map sends your IP address to OpenStreetMap.");
+
+        // The controls sit below the map, never over it, so the whole map stays in view.
+        const map = await article.locator("img.office__map").boundingBox();
+        const note = article.getByText("The interactive map sends your IP address to OpenStreetMap.");
+        for (const control of [load, link, note]) {
+          const box = await control.boundingBox();
+          expect(box && map && box.y >= map.y + map.height).toBe(true);
+          expect(box && map && box.x >= map.x && box.x + box.width <= map.x + map.width).toBe(true);
+        }
       }
       await page.waitForLoadState("networkidle");
       await expect(page.locator(".leaflet-container")).toHaveCount(0);
