@@ -22,6 +22,26 @@ export function SiteHeader() {
   useEffect(() => {
     if (!open) return;
     const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Tab") {
+        // The open menu covers the page, so Tab and Shift+Tab cycle through
+        // the toggle and the menu's links instead of leaving it.
+        const stops = [
+          toggleRef.current,
+          ...(headerRef.current?.querySelectorAll<HTMLElement>("#primary-nav a[href]") ?? []),
+        ].filter((element): element is HTMLElement => Boolean(element));
+        const first = stops[0];
+        const last = stops[stops.length - 1];
+        const active = document.activeElement;
+        const inside = stops.some(element => element === active);
+        if (event.shiftKey && (active === first || !inside)) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && (active === last || !inside)) {
+          event.preventDefault();
+          first?.focus();
+        }
+        return;
+      }
       if (event.key !== "Escape") return;
       setOpen(false);
       toggleRef.current?.focus();
