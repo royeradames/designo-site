@@ -191,7 +191,7 @@ test.describe("mobile menu", () => {
     expect(problems).toEqual([]);
   });
 
-  test("keyboard opens the menu, tabs through its links and closes when focus leaves", async ({ page }) => {
+  test("keyboard opens the menu and Tab cycles through its links and the toggle", async ({ page }) => {
     await page.goto("/");
     const toggle = page.getByRole("button", { name: "Menu" });
     await toggle.focus();
@@ -202,8 +202,21 @@ test.describe("mobile menu", () => {
     await page.keyboard.press("Tab");
     await page.keyboard.press("Tab");
     await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Contact" })).toBeFocused();
+    // Frontend Mentor's report (October 13, 2026): the open menu covers the
+    // page, so Tab wraps inside it instead of leaving it.
     await page.keyboard.press("Tab");
+    await expect(toggle).toBeFocused();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Shift+Tab");
+    await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("link", { name: "Contact" })).toBeFocused();
+    for (let press = 0; press < 10; press += 1) {
+      await page.keyboard.press("Shift+Tab");
+      expect(await page.evaluate(() => Boolean(document.activeElement?.closest(".site-header")))).toBe(true);
+    }
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Escape");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toBeFocused();
   });
 
   test("the menu button is hidden from tablet width up", async ({ page }) => {
@@ -226,7 +239,7 @@ test.describe("contact form", () => {
     for (const label of ["Name", "Email address", "Your message"]) {
       const control = field(page, label);
       await expect(control).toHaveAttribute("aria-invalid", "true");
-      await expect(control).toHaveAccessibleDescription("Can’t be empty");
+      await expect(control).toHaveAccessibleDescription("Can't be empty");
     }
     await expect(field(page, "Phone (optional)")).not.toHaveAttribute("aria-invalid", "true");
     await expect(field(page, "Name")).toBeFocused();
@@ -265,11 +278,11 @@ test.describe("contact form", () => {
     await field(page, "Email address").fill("  ");
     await field(page, "Your message").fill("\n  ");
     await page.getByRole("button", { name: "Submit" }).click();
-    await expect(page.getByText("Can’t be empty")).toHaveCount(3);
+    await expect(page.getByText("Can't be empty")).toHaveCount(3);
     await field(page, "Name").fill("Rose");
     await expect(page.locator("#name-error")).toHaveCount(0);
     await field(page, "Name").fill("");
-    await expect(page.locator("#name-error")).toHaveText("Can’t be empty");
+    await expect(page.locator("#name-error")).toHaveText("Can't be empty");
   });
 
   test("a valid message shows an honest demo success, resets and sends nothing", async ({ page }) => {
@@ -299,7 +312,7 @@ test.describe("contact form", () => {
     await page.getByRole("button", { name: "Submit" }).click();
     await expect(page.getByRole("status")).toContainText("This is a demo");
     await page.getByRole("button", { name: "Submit" }).click();
-    await expect(page.getByText("Can’t be empty")).toHaveCount(3);
+    await expect(page.getByText("Can't be empty")).toHaveCount(3);
     await expect(field(page, "Name")).toBeFocused();
     await expect(page.getByRole("status")).toHaveText("");
     await field(page, "Name").fill("Rose");
