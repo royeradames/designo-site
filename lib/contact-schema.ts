@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const emptyMessage = "Can’t be empty";
+// The brief spells it with a straight apostrophe.
+export const emptyMessage = "Can't be empty";
 export const invalidEmailMessage = "Please use a valid email address";
 
 const required = z.string().trim().min(1, emptyMessage);
