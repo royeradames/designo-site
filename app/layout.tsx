@@ -26,7 +26,6 @@ export const metadata: Metadata = {
     ],
     apple: { url: "/apple-icon.png", sizes: "180x180" },
   },
-  robots: { index: false, follow: false },
 };
 
 export const viewport: Viewport = { themeColor: "#ffffff" };
