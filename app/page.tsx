@@ -42,7 +42,7 @@ export default function HomePage() {
               <p>With over 10 years in the industry, we are experienced in creating fully responsive websites, app design, and engaging brand experiences. Find out more about our services.</p>
               <Link className="btn btn-light" href="/about">Learn more<span className="sr-only"> about Designo</span></Link>
             </div>
-            <img className="home-hero__phone" src="/assets/home/desktop/image-hero-phone.png" width={624} height={913} alt="A phone showing the Frame website, with a white vase on a coral wall" fetchPriority="high" />
+            <img className="home-hero__phone" src="/assets/home/desktop/image-hero-phone.webp" width={624} height={913} alt="A phone showing the Frame website, with a white vase on a coral wall" fetchPriority="high" />
           </div>
         </section>
 
