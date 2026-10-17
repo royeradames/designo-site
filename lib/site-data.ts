@@ -28,7 +28,7 @@ export type Category = {
 const project = (category: CategorySlug, file: string, title: string, description: string, alt: string): Project => ({
   title,
   description,
-  image: `/assets/${category}/desktop/image-${file}.jpg`,
+  image: `/assets/${category}/desktop/image-${file}.webp`,
   alt,
 });
 
