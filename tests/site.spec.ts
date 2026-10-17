@@ -147,7 +147,7 @@ test.describe("navigation", () => {
       const article = page.locator(`#${slug}`);
       await expect(article.getByText(office)).toBeVisible();
       const map = article.locator("img.office__map");
-      expect(await map.evaluate(node => (node as HTMLImageElement).currentSrc)).toMatch(/\/assets\/locations\/.+\.png$/);
+      expect(await map.evaluate(node => (node as HTMLImageElement).currentSrc)).toMatch(/\/assets\/locations\/.+\.webp$/);
     }
     await expect(page.locator("iframe, .leaflet-container")).toHaveCount(0);
     await page.waitForLoadState("networkidle");
