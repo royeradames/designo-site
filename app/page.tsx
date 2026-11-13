@@ -31,12 +31,12 @@ const values = [
 export default function HomePage() {
   return (
     <>
-      <img className="leaf leaf--left" style={{ top: 320 }} src="/assets/shared/desktop/bg-pattern-leaf.svg" width={1006} height={594} alt="" />
-      <img className="leaf leaf--right" style={{ top: 1724 }} src="/assets/shared/desktop/bg-pattern-leaf.svg" width={1006} height={594} alt="" />
+      <span className="leaf leaf--left" style={{ top: 320 }} aria-hidden="true" />
+      <span className="leaf leaf--right" style={{ top: 1724 }} aria-hidden="true" />
       <div className="sections">
         <section className="wrap-tablet" aria-labelledby="home-title">
           <div className="home-hero on-peach">
-            <img className="home-hero__pattern" src="/assets/home/desktop/bg-pattern-hero-home.svg" width={640} height={639} alt="" />
+            <span className="home-hero__pattern" aria-hidden="true" />
             <div className="home-hero__copy">
               <h1 id="home-title" className="title-xl">Award-winning custom designs and digital branding solutions</h1>
               <p>With over 10 years in the industry, we are experienced in creating fully responsive websites, app design, and engaging brand experiences. Find out more about our services.</p>

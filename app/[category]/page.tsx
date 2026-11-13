@@ -30,15 +30,13 @@ export default async function CategoryPage({ params }: PageProps<"/[category]">)
 
   return (
     <>
-      <img className="leaf leaf--left" style={{ top: 126 }} src="/assets/shared/desktop/bg-pattern-leaf.svg" width={1006} height={594} alt="" />
+      <span className="leaf leaf--left" style={{ top: 126 }} aria-hidden="true" />
       <div className="sections category-page">
         <section className="wrap-tablet" aria-labelledby="category-title">
           <div className="category-hero on-peach">
-            <picture>
-              <source media="(min-width: 64rem)" srcSet={introPattern[category.slug]} />
-              <source media="(min-width: 48rem)" srcSet="/assets/shared/tablet/bg-pattern-design-pages-intro-tablet.svg" />
-              <img className="category-hero__pattern" src="/assets/shared/mobile/bg-pattern-design-pages-intro-mobile.svg" width={876} height={584} alt="" />
-            </picture>
+            <span className="category-hero__art" aria-hidden="true">
+              <span className="category-hero__pattern" style={{ "--intro-pattern": `url(${introPattern[category.slug]})` } as React.CSSProperties} />
+            </span>
             <h1 id="category-title" className="title-xl">{category.title}</h1>
             <p>{category.intro}</p>
           </div>
